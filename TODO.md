@@ -10,6 +10,11 @@ Roadmap for the agent library. See [CLAUDE.md](CLAUDE.md) for authoring conventi
 - [x] Mermaid diagrams, Well-Architected pillar mapping, T-shirt cost envelopes
 - [x] CLAUDE.md with authoring conventions
 - [x] Simulated smoke test of AWS single-cloud path (claims platform scenario)
+- [x] Kubernetes read-only agent family, backed by `containers/kubernetes-mcp-server`:
+  - `/k8s-troubleshoot` (inline, iterative)
+  - `/k8s-diagnose-pod` (inline, narrow)
+  - `/k8s-review` (inline Q&A → `kubernetes-reviewer` subagent → report in `docs/reviews/`)
+  - Framework anchor: CIS K8s Benchmark + production-readiness + FinOps + operational excellence
 
 ## Architecture agents — follow-ups
 
@@ -19,12 +24,16 @@ Roadmap for the agent library. See [CLAUDE.md](CLAUDE.md) for authoring conventi
 - [ ] Consider whether the specialist prompts should require returning risks verbatim so the front-door summary doesn't re-derive them
 - [ ] Decide whether to keep the `architecture-designer.md` and `architecture-reviewer.md` subagent files (currently redundant with the inline slash commands; could be deleted or repurposed)
 
+## Kubernetes agents — follow-ups
+
+- [ ] Real smoke test of `/k8s-troubleshoot`, `/k8s-diagnose-pod`, `/k8s-review` against a live cluster (post-restart, fresh session, MCP server installed)
+- [ ] Simulated smoke test of `/k8s-review` subagent hand-off — verify severity-grouped report structure and top-3-findings return value
+- [ ] Decide when to add a mutating `k8s-operator` agent; gate behind explicit human-in-the-loop before applying changes
+- [ ] Consider a cloud-provider-flavored layer (EKS / AKS / GKE) — probably a thin tool-prefix extension rather than separate agents
+
 ## Next agents to build (rough priority)
 
-- [ ] **Troubleshooting agent(s)** — tabled during architecture work; open questions:
-  - Runtime/production vs development-time issues?
-  - Execute diagnostics (kubectl/aws/az/gcloud/terraform) or guide-only?
-  - Common incident patterns to specialize on (ImagePullBackOff, Terraform state drift, GHA job hangs)?
+- [ ] Non-k8s troubleshooting — Terraform state drift, GHA job hangs, generic cloud-resource debugging (separate from the k8s family)
 - [ ] **Security-review agent** — likely scoped to IaC (Terraform/CDK/Helm) + CI/CD posture; separate from architecture-reviewer
 - [ ] **IaC-authoring agent** — Terraform-first, module scaffolding, provider best practices; consider per-cloud specialists again
 - [ ] **Code-review agent** — PR review against DevOps-specific criteria (infra changes, CI/CD changes, secrets handling)

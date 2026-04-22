@@ -12,11 +12,16 @@ A team-shared library of [Claude Code](https://docs.claude.com/en/docs/claude-co
     aws-architect.md             # AWS specialist (invoked by the designer)
     azure-architect.md           # Azure specialist
     gcp-architect.md             # GCP specialist
+    kubernetes-reviewer.md       # Posture-review specialist (invoked by /k8s-review)
   commands/
     design-architecture.md       # /design-architecture slash command
     review-architecture.md       # /review-architecture slash command
+    k8s-troubleshoot.md          # /k8s-troubleshoot — iterative symptom investigation
+    k8s-diagnose-pod.md          # /k8s-diagnose-pod — focused pod diagnosis
+    k8s-review.md                # /k8s-review — cluster/namespace/manifest posture review
 docs/
   architecture/                  # Generated design artifacts land here
+  reviews/                       # Generated review reports (e.g. k8s posture) land here
 ```
 
 ## How to use
@@ -59,6 +64,46 @@ The `architecture-reviewer` runs in two modes:
 
 It produces findings only — no proposed fixes. Severity-grouped + pillar-grouped + a pillar scorecard + explicit strengths.
 
+### Kubernetes troubleshooting and review
+
+Three commands, all read-only, all backed by the [`containers/kubernetes-mcp-server`](https://github.com/containers/kubernetes-mcp-server) MCP server:
+
+```
+/k8s-troubleshoot            # iterative, hypothesis-driven — "pods in checkout are OOMKilling"
+/k8s-diagnose-pod            # focused — "tell me what's wrong with checkout/api-7b8f-abcde"
+/k8s-review                  # posture review, writes a findings report to docs/reviews/
+```
+
+Troubleshoot and diagnose-pod run inline (iterative flows need to ask mid-flow questions). `/k8s-review` runs the Q&A inline and then delegates to the `kubernetes-reviewer` subagent, which writes a severity-grouped report against a composite anchor (CIS Kubernetes Benchmark + production-readiness patterns + FinOps heuristics + operational excellence).
+
+#### Installing the Kubernetes MCP server
+
+The MCP server is not bundled — install it once per machine. Easiest path for Claude Code:
+
+```bash
+claude mcp add kubernetes -- npx -y kubernetes-mcp-server@latest --read-only
+```
+
+Or pin via a checked-in `.mcp.json` at the root of any project that uses these commands:
+
+```json
+{
+  "mcpServers": {
+    "kubernetes": {
+      "command": "npx",
+      "args": ["-y", "kubernetes-mcp-server@latest", "--read-only"]
+    }
+  }
+}
+```
+
+Alternatives: native binary, Python package, or container image — see the [upstream repo](https://github.com/containers/kubernetes-mcp-server).
+
+Notes:
+- `--read-only` disables mutating tools at the server. The commands assume this flag is set; don't remove it unless you explicitly want mutation.
+- The server reads your kubeconfig and supports all contexts by default (multi-cluster on). Add `--disable-multi-cluster` if you want to scope to `current-context` only.
+- For OIDC / OAuth / in-cluster deployment, see the upstream docs.
+
 ## Design principles baked into these agents
 
 - **Platform-level only.** App-level topology is out of scope.
@@ -72,7 +117,7 @@ It produces findings only — no proposed fixes. Severity-grouped + pillar-group
 ## Roadmap
 
 Planned but not yet built:
-- Troubleshooting agent(s)
 - Security-review agent
 - IaC-authoring agent
 - Code-review agent
+- Mutating Kubernetes operator agent (currently scoped read-only)
