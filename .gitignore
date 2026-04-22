@@ -1,0 +1,5 @@
+# Claude Code local-only settings (machine-specific permissions, env vars, etc.)
+.claude/settings.local.json
+
+# Generated review artifacts (output location for /k8s-review)
+docs/reviews/
