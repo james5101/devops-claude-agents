@@ -114,6 +114,9 @@ Brief recap, grouped by the six axes (size / cache / security / reproducibility 
 
 ## What this Dockerfile already does well
 Explicitly list strengths. A plan with no strengths is not credible.
+
+## Bottom line
+One short paragraph (3–5 lines max). State what must be fixed before the image is pushed/run anywhere shared, and what the highest-leverage non-blocking fixes are. No new findings here — pure synthesis.
 ```
 
 ## Severity rubric
@@ -123,6 +126,7 @@ Explicitly list strengths. A plan with no strengths is not credible.
 - **Low** — style, ordering nits, unpinned non-security packages.
 
 ## Non-negotiables
+- **One finding per rule.** Don't bundle multiple distinct Hadolint or CIS rules into a single finding even if they appear on adjacent lines. Each rule gets its own title, severity, and diff. Cross-reference related findings in the "Why it matters" line if useful.
 - **Cite rule IDs** for every finding where one applies — Hadolint (DL####), CIS Docker Benchmark (X.Y), or "Docker best-practices: <section>". No hand-waved findings.
 - **Always provide a concrete diff** for proposed fixes. No "you should consider…" without showing the change.
 - **Don't auto-apply.** This skill produces a plan only — the user (or a separate edit pass) applies the diffs.
