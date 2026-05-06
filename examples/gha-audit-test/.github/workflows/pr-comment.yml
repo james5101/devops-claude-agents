@@ -1,0 +1,21 @@
+name: PR comment handler
+
+on:
+  pull_request_target:
+    types: [opened, synchronize]
+
+permissions: write-all
+
+jobs:
+  comment:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+      - run: npm install
+      - run: npm run build
+      - run: |
+          echo "Processing PR from ${{ github.event.pull_request.head.repo.full_name }}"
+          echo "Branch: ${{ github.head_ref }}"
+          ./scripts/post-comment.sh "${{ github.event.pull_request.body }}"

@@ -21,6 +21,7 @@ A team-shared library of [Claude Code](https://docs.claude.com/en/docs/claude-co
     k8s-review.md                # /k8s-review — cluster/namespace/manifest posture review
   skills/
     dockerfile-optimizer/        # Auto-triggers on Dockerfile review/optimize requests
+    github-actions-auditor/      # Auto-triggers on GHA workflow audit/review/optimize requests
 docs/
   architecture/                  # Generated design artifacts land here
   reviews/                       # Generated review reports (e.g. k8s posture) land here
@@ -117,6 +118,19 @@ It scans every Dockerfile / Containerfile in the repo, detects the language stac
 - [CIS Docker Benchmark](https://www.cisecurity.org/benchmark/docker) for security findings
 
 Coverage axes (all six, every invocation): image size, build-cache hit rate, security, reproducibility, runtime hygiene (signal handling, HEALTHCHECK, CMD form), supply chain (provenance, SBOM, base trust). Proposes concrete fixes as diffs; does not auto-apply.
+
+### GitHub Actions audit and optimization
+
+`github-actions-auditor` is a **skill** — it auto-triggers when you ask Claude to review, audit, optimize, lint, or harden GitHub Actions workflows, reusable workflows, or composite actions.
+
+It scans every file under `.github/workflows/`, every in-repo `action.yml`, and `dependabot.yml`, detects the language stack per workflow, and produces an inline diff-style audit plan grouped by severity. Anchored on:
+
+- [GitHub: Security hardening for GitHub Actions](https://docs.github.com/en/actions/security-guides/security-hardening-for-github-actions)
+- [actionlint](https://github.com/rhysd/actionlint) rule names
+- [zizmor](https://github.com/woodruffw/zizmor) finding IDs (`template-injection`, `artipacked`, `dangerous-triggers`, `unpinned-uses`, `excessive-permissions`, …)
+- [OpenSSF Scorecard](https://github.com/ossf/scorecard) checks (`Pinned-Dependencies`, `Token-Permissions`, `Dangerous-Workflow`)
+
+Coverage axes (all six, every invocation): security, reliability, efficiency/cost, maintainability, correctness, supply chain. Proposes concrete fixes as diffs; does not auto-apply.
 
 ## Design principles baked into these agents
 

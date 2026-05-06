@@ -16,6 +16,7 @@ Roadmap for the agent library. See [CLAUDE.md](CLAUDE.md) for authoring conventi
   - `/k8s-review` (inline Q&A → `kubernetes-reviewer` subagent → report in `docs/reviews/`)
   - Framework anchor: CIS K8s Benchmark + production-readiness + FinOps + operational excellence
 - [x] `dockerfile-optimizer` skill — auto-triggers on Dockerfile review/optimize/audit requests; scans all Dockerfiles in repo, detects stack, produces inline diff-style optimization plan across six axes (size / cache / security / reproducibility / runtime / supply chain). Anchored on Docker best-practices + Hadolint rule IDs + CIS Docker Benchmark.
+- [x] `github-actions-auditor` skill — auto-triggers on GHA workflow audit/review/optimize/harden requests; scans `.github/workflows/`, in-repo `action.yml` files, and `dependabot.yml`; detects stack; produces inline diff-style audit plan across six axes (security / reliability / efficiency / maintainability / correctness / supply chain). Anchored on GitHub security-hardening docs + actionlint + zizmor + OpenSSF Scorecard.
 
 ## Architecture agents — follow-ups
 
@@ -37,6 +38,13 @@ Roadmap for the agent library. See [CLAUDE.md](CLAUDE.md) for authoring conventi
 - [ ] Real smoke test on a repo with multiple Dockerfiles (Node + Python + Go) to verify stack detection and per-file grouping
 - [ ] Decide whether to add an opt-in companion that *applies* the proposed diffs (gate behind explicit confirmation, never auto-apply)
 - [ ] Consider an optional CI integration recipe — Hadolint + Trivy + the skill's findings format
+
+## GitHub Actions auditor — follow-ups
+
+- [ ] Real smoke test against `examples/gha-audit-test/.github/workflows/` to verify all six axes fire and rule IDs are cited correctly
+- [ ] Multi-stack fixture (Node + Python + Go workflows in one repo) to verify per-file stack detection
+- [ ] Decide whether to add an opt-in companion that *applies* the proposed diffs (gate behind explicit confirmation, never auto-apply)
+- [ ] Consider integration recipe — actionlint + zizmor + the skill's output format as a CI gate
 
 ## Next agents to build (rough priority)
 
