@@ -14,6 +14,14 @@ If a workflow asks the user questions and waits for answers, it MUST be implemen
 
 **Why:** When a slash command invokes a subagent, the subagent's output goes back to the parent agent, which summarizes rather than relaying verbatim. Clarifying questions get paraphrased into "please answer" and the user never sees them. This repo hit exactly that bug during initial authoring — the fix was to inline the front-door designer into `/design-architecture` rather than calling an `architecture-designer` subagent.
 
+### Rule 1b — Skills auto-trigger; commands are explicit
+
+A **skill** (`.claude/skills/<name>/SKILL.md`) is the right shape when the capability should activate based on what the user is doing — they ask "review this Dockerfile" and the skill loads itself. The skill description must be precise enough that Claude triggers it on the right requests and ignores it on the wrong ones.
+
+Use a **slash command** when the user should explicitly invoke the workflow — usually because it asks clarifying questions and runs a multi-step workflow.
+
+Use a **skill** when the workflow is mostly "do this work on the artifact in front of me" and clarifying questions would be friction. Skills can still ask a question, but they shouldn't be question-led the way the architecture commands are.
+
 ### Rule 2 — Subagents are for deep, non-conversational work
 
 Subagents (`.claude/agents/`) should be reserved for:
@@ -61,9 +69,11 @@ All architecture agents are pinned to **Opus** (`model: opus` in frontmatter). A
 ```
 .claude/
   agents/         # Subagents — deep, non-conversational work only
-  commands/       # Slash commands — conversational workflows
+  commands/       # Slash commands — conversational workflows the user invokes
+  skills/        # Skills — auto-triggered capabilities (one folder per skill, contains SKILL.md)
 docs/
   architecture/   # Generated design artifacts land here
+  reviews/        # Generated review reports (e.g. k8s posture) land here
 CLAUDE.md         # This file — instructions for Claude
 README.md         # Human-facing overview
 TODO.md           # Roadmap

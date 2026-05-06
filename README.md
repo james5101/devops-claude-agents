@@ -1,6 +1,6 @@
 # devops-claude-agents
 
-A team-shared library of [Claude Code](https://docs.claude.com/en/docs/claude-code) subagents and slash commands for DevOps work — starting with cloud architecture.
+A team-shared library of [Claude Code](https://docs.claude.com/en/docs/claude-code) subagents, slash commands, and skills for DevOps work — starting with cloud architecture, Kubernetes, and container build hygiene.
 
 ## What's here
 
@@ -19,6 +19,8 @@ A team-shared library of [Claude Code](https://docs.claude.com/en/docs/claude-co
     k8s-troubleshoot.md          # /k8s-troubleshoot — iterative symptom investigation
     k8s-diagnose-pod.md          # /k8s-diagnose-pod — focused pod diagnosis
     k8s-review.md                # /k8s-review — cluster/namespace/manifest posture review
+  skills/
+    dockerfile-optimizer/        # Auto-triggers on Dockerfile review/optimize requests
 docs/
   architecture/                  # Generated design artifacts land here
   reviews/                       # Generated review reports (e.g. k8s posture) land here
@@ -104,13 +106,25 @@ Notes:
 - The server reads your kubeconfig and supports all contexts by default (multi-cluster on). Add `--disable-multi-cluster` if you want to scope to `current-context` only.
 - For OIDC / OAuth / in-cluster deployment, see the upstream docs.
 
+### Dockerfile review and optimization
+
+`dockerfile-optimizer` is a **skill**, not a slash command — it auto-triggers when you ask Claude to review, optimize, audit, lint, harden, or shrink a Dockerfile. No invocation needed.
+
+It scans every Dockerfile / Containerfile in the repo, detects the language stack per file (Node / Python / Go / Java / Rust / Ruby), and produces an inline diff-style optimization plan grouped by severity. Anchored on three layered references:
+
+- [Docker official build best-practices](https://docs.docker.com/build/building/best-practices/)
+- [Hadolint rule IDs](https://github.com/hadolint/hadolint) (DL3008, DL3015, DL3025, DL4006, etc.)
+- [CIS Docker Benchmark](https://www.cisecurity.org/benchmark/docker) for security findings
+
+Coverage axes (all six, every invocation): image size, build-cache hit rate, security, reproducibility, runtime hygiene (signal handling, HEALTHCHECK, CMD form), supply chain (provenance, SBOM, base trust). Proposes concrete fixes as diffs; does not auto-apply.
+
 ## Design principles baked into these agents
 
 - **Platform-level only.** App-level topology is out of scope.
 - **Clarifying questions up-front, in a batch.** No best-guess first drafts.
 - **Framework-anchored.** AWS Well-Architected, Azure WAF, or Google Cloud Architecture Framework depending on cloud.
 - **No org-specific standards hard-coded.** Naming, tagging, approved-service lists belong in policy-as-code (OPA, Checkov, Azure Policy, Org Policies) — not in prompt text where they drift.
-- **Reviewer identifies, does not propose.** Keeps critique sharp and separates problem-finding from solutioning.
+- **Reviewer identifies, does not propose** — for *architecture* (high-stakes, cross-cutting). For local artifacts like Dockerfiles, the optimizer *does* propose concrete diffs because the blast radius is small and the user wants actionable output.
 - **Terraform-first** in code examples; CDK supported where the user indicates it.
 - **Opus** is pinned as the model for all agents — architecture work is reasoning-heavy.
 

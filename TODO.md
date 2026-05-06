@@ -15,6 +15,7 @@ Roadmap for the agent library. See [CLAUDE.md](CLAUDE.md) for authoring conventi
   - `/k8s-diagnose-pod` (inline, narrow)
   - `/k8s-review` (inline Q&A → `kubernetes-reviewer` subagent → report in `docs/reviews/`)
   - Framework anchor: CIS K8s Benchmark + production-readiness + FinOps + operational excellence
+- [x] `dockerfile-optimizer` skill — auto-triggers on Dockerfile review/optimize/audit requests; scans all Dockerfiles in repo, detects stack, produces inline diff-style optimization plan across six axes (size / cache / security / reproducibility / runtime / supply chain). Anchored on Docker best-practices + Hadolint rule IDs + CIS Docker Benchmark.
 
 ## Architecture agents — follow-ups
 
@@ -30,6 +31,12 @@ Roadmap for the agent library. See [CLAUDE.md](CLAUDE.md) for authoring conventi
 - [ ] Simulated smoke test of `/k8s-review` subagent hand-off — verify severity-grouped report structure and top-3-findings return value
 - [ ] Decide when to add a mutating `k8s-operator` agent; gate behind explicit human-in-the-loop before applying changes
 - [ ] Consider a cloud-provider-flavored layer (EKS / AKS / GKE) — probably a thin tool-prefix extension rather than separate agents
+
+## Dockerfile optimizer — follow-ups
+
+- [ ] Real smoke test on a repo with multiple Dockerfiles (Node + Python + Go) to verify stack detection and per-file grouping
+- [ ] Decide whether to add an opt-in companion that *applies* the proposed diffs (gate behind explicit confirmation, never auto-apply)
+- [ ] Consider an optional CI integration recipe — Hadolint + Trivy + the skill's findings format
 
 ## Next agents to build (rough priority)
 
