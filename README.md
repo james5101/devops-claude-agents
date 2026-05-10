@@ -22,6 +22,7 @@ A team-shared library of [Claude Code](https://docs.claude.com/en/docs/claude-co
   skills/
     dockerfile-optimizer/        # Auto-triggers on Dockerfile review/optimize requests
     github-actions-auditor/      # Auto-triggers on GHA workflow audit/review/optimize requests
+    terraform-plan-reviewer/     # Auto-triggers when terraform plan output is pasted or reviewed
 docs/
   architecture/                  # Generated design artifacts land here
   reviews/                       # Generated review reports (e.g. k8s posture) land here
@@ -119,6 +120,22 @@ It scans every Dockerfile / Containerfile in the repo, detects the language stac
 
 Coverage axes (all six, every invocation): image size, build-cache hit rate, security, reproducibility, runtime hygiene (signal handling, HEALTHCHECK, CMD form), supply chain (provenance, SBOM, base trust). Proposes concrete fixes as diffs; does not auto-apply.
 
+### Terraform plan review
+
+`terraform-plan-reviewer` is a **skill** — it auto-triggers when you paste `terraform plan` output into the chat or ask to review/analyze a plan.
+
+Run `terraform plan` in your terminal, paste the output, and the skill immediately produces a risk-graded review:
+
+- **Risk verdict** — SAFE TO APPLY / REVIEW CAREFULLY / HOLD — DESTRUCTIVE
+- **Destructive changes** — every `destroy` and `replace` called out by resource address, with root cause and rollback difficulty
+- **Security findings** — IAM wildcard policies, firewall rules opening ports to 0.0.0.0/0, encryption changes, public access changes
+- **Blast radius** — scope label (Contained / Moderate / Wide) plus downstream risk for foundational resources
+- **Operational risk** — expected downtime, rollback difficulty, apply-order sensitivity
+- **Drift indicators** — unexpected changes that don't match stated intent
+- **What's routine** — safe changes called out explicitly to reduce noise
+
+Stateful resources (databases, storage, queues, caches, secrets stores) are flagged at Critical severity when destroyed or replaced, since data loss may be permanent.
+
 ### GitHub Actions audit and optimization
 
 `github-actions-auditor` is a **skill** — it auto-triggers when you ask Claude to review, audit, optimize, lint, or harden GitHub Actions workflows, reusable workflows, or composite actions.
@@ -149,3 +166,6 @@ Planned but not yet built:
 - IaC-authoring agent
 - Code-review agent
 - Mutating Kubernetes operator agent (currently scoped read-only)
+- Incident / alert triage assistant (non-k8s cloud resource diagnosis)
+- PR description generator for infra changes
+- On-call handoff generator

@@ -17,6 +17,7 @@ Roadmap for the agent library. See [CLAUDE.md](CLAUDE.md) for authoring conventi
   - Framework anchor: CIS K8s Benchmark + production-readiness + FinOps + operational excellence
 - [x] `dockerfile-optimizer` skill — auto-triggers on Dockerfile review/optimize/audit requests; scans all Dockerfiles in repo, detects stack, produces inline diff-style optimization plan across six axes (size / cache / security / reproducibility / runtime / supply chain). Anchored on Docker best-practices + Hadolint rule IDs + CIS Docker Benchmark.
 - [x] `github-actions-auditor` skill — auto-triggers on GHA workflow audit/review/optimize/harden requests; scans `.github/workflows/`, in-repo `action.yml` files, and `dependabot.yml`; detects stack; produces inline diff-style audit plan across six axes (security / reliability / efficiency / maintainability / correctness / supply chain). Anchored on GitHub security-hardening docs + actionlint + zizmor + OpenSSF Scorecard.
+- [x] `terraform-plan-reviewer` skill — auto-triggers when `terraform plan` output is pasted or the user asks to review a plan; produces an inline risk-graded review across six axes (destructive changes / security / blast radius / operational risk / drift indicators / routine changes); emits a top-level verdict (SAFE TO APPLY / REVIEW CAREFULLY / HOLD — DESTRUCTIVE); stateful resources flagged at Critical on destroy/replace.
 
 ## Architecture agents — follow-ups
 
@@ -45,6 +46,14 @@ Roadmap for the agent library. See [CLAUDE.md](CLAUDE.md) for authoring conventi
 - [ ] Multi-stack fixture (Node + Python + Go workflows in one repo) to verify per-file stack detection
 - [ ] Decide whether to add an opt-in companion that *applies* the proposed diffs (gate behind explicit confirmation, never auto-apply)
 - [ ] Consider integration recipe — actionlint + zizmor + the skill's output format as a CI gate
+
+## Terraform plan reviewer — follow-ups
+
+- [ ] Smoke test against a real plan with stateful resource replacements to verify Critical verdict fires correctly
+- [ ] Smoke test against a plan with IAM wildcard additions to verify security axis catches it
+- [ ] Decide whether to support JSON plan format (`terraform show -json tfplan`) as an opt-in input mode — richer attribute data but requires a file path
+- [ ] Consider a companion that reads plan from a file path directly (user provides `plan.out` path, skill reads it)
+- [ ] Consider integration recipe — run as a CI step and post the verdict as a PR comment (would require a companion script, not the skill itself)
 
 ## Next agents to build (rough priority)
 
