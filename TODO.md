@@ -18,6 +18,7 @@ Roadmap for the agent library. See [CLAUDE.md](CLAUDE.md) for authoring conventi
 - [x] `dockerfile-optimizer` skill — auto-triggers on Dockerfile review/optimize/audit requests; scans all Dockerfiles in repo, detects stack, produces inline diff-style optimization plan across six axes (size / cache / security / reproducibility / runtime / supply chain). Anchored on Docker best-practices + Hadolint rule IDs + CIS Docker Benchmark.
 - [x] `github-actions-auditor` skill — auto-triggers on GHA workflow audit/review/optimize/harden requests; scans `.github/workflows/`, in-repo `action.yml` files, and `dependabot.yml`; detects stack; produces inline diff-style audit plan across six axes (security / reliability / efficiency / maintainability / correctness / supply chain). Anchored on GitHub security-hardening docs + actionlint + zizmor + OpenSSF Scorecard.
 - [x] `terraform-plan-reviewer` skill — auto-triggers when `terraform plan` output is pasted or the user asks to review a plan; produces an inline risk-graded review across six axes (destructive changes / security / blast radius / operational risk / drift indicators / routine changes); emits a top-level verdict (SAFE TO APPLY / REVIEW CAREFULLY / HOLD — DESTRUCTIVE); stateful resources flagged at Critical on destroy/replace.
+- [x] `/iac-author` slash command + `iac-author` subagent — clarifying-question front door delegates to a generation subagent that reads `.claude/iac-standards.md` (naming, tags, module sources, forbidden patterns, backend config), attempts MCP module lookup via `terraform-registry` server (`list_modules` / `get_module_schema` / `get_module_example`) with graceful fallback to approved public registry modules, then writes `.tf` files to disk. Security defaults baked in (encryption, no public access, no wildcard IAM, sensitive vars).
 
 ## Architecture agents — follow-ups
 
@@ -46,6 +47,14 @@ Roadmap for the agent library. See [CLAUDE.md](CLAUDE.md) for authoring conventi
 - [ ] Multi-stack fixture (Node + Python + Go workflows in one repo) to verify per-file stack detection
 - [ ] Decide whether to add an opt-in companion that *applies* the proposed diffs (gate behind explicit confirmation, never auto-apply)
 - [ ] Consider integration recipe — actionlint + zizmor + the skill's output format as a CI gate
+
+## IaC author — follow-ups
+
+- [ ] Smoke test `/iac-author` against a real request (e.g. "private EKS cluster with IRSA") to verify subagent writes valid `.tf` files and respects standards
+- [ ] Build the `terraform-registry` MCP server — implement `list_modules`, `get_module_schema`, `get_module_example` backed by your internal registry API (Terraform Cloud, Artifactory, or custom)
+- [ ] Add a `tflint` / `checkov` validation pass as an optional post-generation step — agent runs the tool against its own output and surfaces violations before returning
+- [ ] Decide whether to support CDK (TypeScript) as an alternate output shape — likely a separate `cdk-author` subagent rather than complicating this one
+- [ ] Consider a `--dry-run` mode that returns the generated code inline without writing to disk (useful for quick review before committing)
 
 ## Terraform plan reviewer — follow-ups
 

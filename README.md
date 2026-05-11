@@ -120,6 +120,34 @@ It scans every Dockerfile / Containerfile in the repo, detects the language stac
 
 Coverage axes (all six, every invocation): image size, build-cache hit rate, security, reproducibility, runtime hygiene (signal handling, HEALTHCHECK, CMD form), supply chain (provenance, SBOM, base trust). Proposes concrete fixes as diffs; does not auto-apply.
 
+### IaC authoring
+
+```
+/iac-author
+/iac-author private EKS cluster with IRSA and Karpenter
+/iac-author networking stack for prod VPC
+```
+
+The `/iac-author` command asks a short batch of clarifying questions (resource description, cloud, environment, root vs reusable module, output path), then delegates to the `iac-author` subagent which generates and writes Terraform files to disk.
+
+Org-specific best practices are encoded in **`.claude/iac-standards.md`** — a template file checked into this repo. Fill in your naming conventions, required tags, approved module sources, forbidden patterns, and backend configuration. The command reads this file at invocation time and passes it to the subagent verbatim.
+
+The subagent also attempts to query an **internal module registry via MCP** (`terraform-registry` server) before falling back to public registry modules. The MCP interface is scaffolded and ready to wire up — see the [MCP server configuration](#mcp-module-registry) section below and the comments in `.claude/iac-standards.md`.
+
+Security defaults are baked in regardless of standards: encryption at rest, no public buckets, no `0.0.0.0/0` ingress, no wildcard IAM, `sensitive = true` on secret variables, no hardcoded credentials.
+
+#### MCP module registry
+
+The `iac-author` subagent will call these tools on a `terraform-registry` MCP server if configured:
+
+| Tool | Purpose |
+|---|---|
+| `list_modules(provider, resource_type)` | Discover available internal modules |
+| `get_module_schema(source)` | Fetch input variables and outputs for a module |
+| `get_module_example(source)` | Fetch an example usage block |
+
+To wire it up, add your server to `.mcp.json` (see the template in `.claude/iac-standards.md`). If the server is absent or returns no results, the subagent falls back to the approved public modules listed in `iac-standards.md`.
+
 ### Terraform plan review
 
 `terraform-plan-reviewer` is a **skill** — it auto-triggers when you paste `terraform plan` output into the chat or ask to review/analyze a plan.
