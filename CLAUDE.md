@@ -4,7 +4,16 @@ Instructions for Claude Code when working in this repository.
 
 ## What this repo is
 
-A team-shared library of Claude Code subagents and slash commands for DevOps work. Currently scoped to **platform-level cloud architecture** (design + review); troubleshooting, security review, IaC authoring, and code review are on the roadmap. See [TODO.md](TODO.md).
+A team-shared library of Claude Code subagents, slash commands, and skills for DevOps work. Current coverage:
+
+- **Cloud architecture** — design (`/design-architecture`) and review (`/review-architecture`) against AWS/Azure/GCP Well-Architected Frameworks
+- **Kubernetes** — iterative troubleshoot, pod diagnosis, and posture review against CIS K8s Benchmark + FinOps + production-readiness
+- **Dockerfiles** — auto-triggered optimization across size / cache / security / reproducibility / runtime / supply chain axes
+- **GitHub Actions** — auto-triggered audit across security / reliability / efficiency / maintainability / correctness / supply chain axes
+- **Terraform plans** — auto-triggered risk review (SAFE / REVIEW CAREFULLY / HOLD verdict) across destructive changes / security / blast radius / operational risk / drift / routine axes; accepts both human-readable and `terraform show -json` output
+- **IaC authoring** — `/iac-author` generates production-ready Terraform from a clarified brief, reads org standards from `.claude/iac-standards.md`, attempts internal module registry lookup via MCP
+
+See [TODO.md](TODO.md) for the roadmap.
 
 ## Conventions for adding agents and commands
 
@@ -68,15 +77,18 @@ All architecture agents are pinned to **Opus** (`model: opus` in frontmatter). A
 
 ```
 .claude/
-  agents/         # Subagents — deep, non-conversational work only
-  commands/       # Slash commands — conversational workflows the user invokes
-  skills/        # Skills — auto-triggered capabilities (one folder per skill, contains SKILL.md)
+  agents/             # Subagents — deep, non-conversational work only
+  commands/           # Slash commands — conversational workflows the user invokes
+  skills/             # Skills — auto-triggered capabilities (one folder per skill, contains SKILL.md)
+  iac-standards.md    # Org-specific IaC conventions (naming, tags, modules, forbidden patterns)
 docs/
-  architecture/   # Generated design artifacts land here
-  reviews/        # Generated review reports (e.g. k8s posture) land here
-CLAUDE.md         # This file — instructions for Claude
-README.md         # Human-facing overview
-TODO.md           # Roadmap
+  architecture/       # Generated design artifacts land here
+  reviews/            # Generated review reports (e.g. k8s posture) land here
+generated/
+  iac/                # Terraform files written by /iac-author land here (gitignored or reviewed before commit)
+CLAUDE.md             # This file — instructions for Claude
+README.md             # Human-facing overview
+TODO.md               # Roadmap
 ```
 
 ## Testing new agents
@@ -84,6 +96,8 @@ TODO.md           # Roadmap
 1. **Simulated smoke test** first — play both user and agent inline to sanity-check the prompt. Catches obvious issues without requiring a restart.
 2. **Real smoke test** — restart Claude Code and invoke the slash command or subagent for real. Commands and subagents are discovered at session start.
 3. **Comparison / fan-out modes** need their own smoke tests; don't assume a single-cloud test covers multi-cloud routing.
+
+**Known quirk:** Subagents created in the current session are not discoverable until the next session restart. If `Agent(subagent_type="<name>")` returns "not found", fall back to `subagent_type="general-purpose"` with the full agent prompt embedded directly in the call.
 
 ## Before committing
 

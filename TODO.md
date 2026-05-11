@@ -50,7 +50,7 @@ Roadmap for the agent library. See [CLAUDE.md](CLAUDE.md) for authoring conventi
 
 ## IaC author — follow-ups
 
-- [ ] Smoke test `/iac-author` against a real request (e.g. "private EKS cluster with IRSA") to verify subagent writes valid `.tf` files and respects standards
+- [x] Smoke test `/iac-author` against a real request ("private EKS cluster with 3 nodes") — subagent wrote valid `.tf` files to `generated/iac/eks-private/`; note: new subagents require a session restart to be discoverable, so the generation ran via `general-purpose` with the full iac-author prompt embedded
 - [ ] Build the `terraform-registry` MCP server — implement `list_modules`, `get_module_schema`, `get_module_example` backed by your internal registry API (Terraform Cloud, Artifactory, or custom)
 - [ ] Add a `tflint` / `checkov` validation pass as an optional post-generation step — agent runs the tool against its own output and surfaces violations before returning
 - [ ] Decide whether to support CDK (TypeScript) as an alternate output shape — likely a separate `cdk-author` subagent rather than complicating this one
@@ -60,7 +60,7 @@ Roadmap for the agent library. See [CLAUDE.md](CLAUDE.md) for authoring conventi
 
 - [ ] Smoke test against a real plan with stateful resource replacements to verify Critical verdict fires correctly
 - [ ] Smoke test against a plan with IAM wildcard additions to verify security axis catches it
-- [ ] Decide whether to support JSON plan format (`terraform show -json tfplan`) as an opt-in input mode — richer attribute data but requires a file path
+- [x] JSON plan format (`terraform show -json tfplan`) confirmed working — skill accepted pasted JSON output and produced full 6-axis review; no code changes needed, the skill handles both formats
 - [ ] Consider a companion that reads plan from a file path directly (user provides `plan.out` path, skill reads it)
 - [ ] Consider integration recipe — run as a CI step and post the verdict as a PR comment (would require a companion script, not the skill itself)
 

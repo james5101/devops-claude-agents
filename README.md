@@ -191,7 +191,6 @@ Coverage axes (all six, every invocation): security, reliability, efficiency/cos
 
 Planned but not yet built:
 - Security-review agent
-- IaC-authoring agent
 - Code-review agent
 - Mutating Kubernetes operator agent (currently scoped read-only)
 - Incident / alert triage assistant (non-k8s cloud resource diagnosis)
